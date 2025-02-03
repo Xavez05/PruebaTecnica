@@ -1,0 +1,83 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+
+  security:
+    user:
+      name: admin
+      password: admin123
+
+  cloud:
+    gateway:
+      routes:
+        - id: products-service
+          uri: lb://products-service
+          predicates:
+            - Path=/api/products/**
+
+        - id: orders-service
+          uri: lb://orders-service
+          predicates:
+            - Path=/api/orders/**
+
+        - id: payments-service
+          uri: lb://payments-service
+          predicates:
+            - Path=/api/payments/**
+
+        - id: security-service
+          uri: lb://security-service
+          predicates:
+            - Path=/api/auth/**
+
+        # 🔹 Swagger UI en API Gateway
+        - id: swagger-ui
+          uri: http://localhost:8080
+          predicates:
+            - Path=/swagger-ui.html, /swagger-ui/**
+
+        # 🔹 Redirigir API Docs de los microservicios
+        - id: api-docs-products
+          uri: lb://products-service
+          predicates:
+            - Path=/products-service/v3/api-docs
+
+        - id: api-docs-orders
+          uri: lb://orders-service
+          predicates:
+            - Path=/orders-service/v3/api-docs
+
+        - id: api-docs-payments
+          uri: lb://payments-service
+          predicates:
+            - Path=/payments-service/v3/api-docs
+
+        - id: api-docs-security
+          uri: lb://security-service
+          predicates:
+            - Path=/security-service/v3/api-docs
+
+
+springdoc:
+  swagger-ui:
+    enabled: true
+    urls:
+      - name: Products Service
+        url: /products-service/v3/api-docs
+      - name: Orders Service
+        url: /orders-service/v3/api-docs
+      - name: Payments Service
+        url: /payments-service/v3/api-docs
+      - name: Security Service
+        url: /security-service/v3/api-docs
+
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://eureka-server:8761/eureka/
+  instance:
+    preferIpAddress: true
